@@ -11,23 +11,22 @@ class Question
 
     public function __construct(protected $body, protected $solution)
     {
-
     }
 
-    public function answer($answer)
+    public function answer($answer): bool
     {
         $this->answer = $answer;
 
-        return $this->correct = $answer === $this->solution;
+        return $this->solved();
     }
 
-    public function answered()
+    public function answered(): bool
     {
         return isset($this->answer);
     }
 
-    public function solved()
+    public function solved(): bool
     {
-        return $this->correct;
+        return $this->answer === $this->solution;
     }
 }

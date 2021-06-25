@@ -2,55 +2,54 @@
 
 namespace App;
 
+use Exception;
+
 class Quiz
 {
-    protected array $questions;
-    protected int $currentQuestion = 1;
+    protected Questions $questions;
+
+    public function __construct()
+    {
+        $this->questions = new Questions();
+    }
 
     public function addQuestion(Question $question): void
     {
-        $this->questions[] = $question;
+        $this->questions->add($question);
     }
 
-    public function questions(): array
+    public function begin(): Question
+    {
+        return $this->nextQuestion();
+    }
+
+    public function nextQuestion(): Question|bool
+    {
+        return $this->questions->next();
+    }
+
+    public function questions(): Questions
     {
         return $this->questions;
     }
 
-    public function nextQuestion()
-    {
-        if (!isset($this->questions[$this->currentQuestion - 1])) {
-            return false;
-        }
-
-        $question = $this->questions[$this->currentQuestion - 1];
-
-        $this->currentQuestion++;
-
-        return $question;
-    }
-
+    /**
+     * @throws Exception
+     */
     public function grade(): float|int
     {
         if (!$this->isComplete()) {
-            throw new \Exception('This quiz has not yet been completed.');
+            throw new Exception('This quiz has not yet been completed.');
         }
 
-        $correct = count($this->correctlyAnsweredQuestions());
+        $correct = count($this->questions->solved());
 
-        return ($correct / count($this->questions)) * 100;
+        return ($correct / $this->questions->count()) * 100;
     }
 
     public function isComplete(): bool
     {
-        $answeredQuestions = count(array_filter($this->questions, fn($question) => $question->answered()));
-        $totalQuestions = count($this->questions);
-
-        return $answeredQuestions === $totalQuestions;
+        return count($this->questions->answered()) === $this->questions->count();
     }
 
-    protected function correctlyAnsweredQuestions(): array
-    {
-        return array_filter($this->questions, static fn(Question $question) => $question->solved());
-    }
 }
