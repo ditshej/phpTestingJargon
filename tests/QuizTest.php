@@ -33,7 +33,7 @@ class QuizTest extends TestCase
     }
 
     /** @test */
-    public function it_grades_a_failed_quiz() : void
+    public function it_grades_a_failed_quiz(): void
     {
         $quiz = new Quiz();
 
@@ -45,16 +45,41 @@ class QuizTest extends TestCase
 
         self::assertEquals(0, $quiz->grade());
     }
-    
+
     /** @test */
-    public function it_correctly_tracks_the_next_question_in_the_queue() : void
+    public function it_correctly_tracks_the_next_question_in_the_queue(): void
     {
-        
+
+        $quiz = new Quiz();
+
+        $quiz->addQuestion($question1 = new Question("What is 2 + 2?", 4));
+        $quiz->addQuestion($question2 = new Question("What is 3 + 3?", 6));
+
+        self::assertEquals($question1, $quiz->nextQuestion());
+        self::assertEquals($question2, $quiz->nextQuestion());
+
     }
-    
+
     /** @test */
-    public function it_cannot_be_graded_until_all_questions_have_been_answered() : void
+    public function it_returns_false_if_there_are_no_remaining_next_question_in_the_queue(): void
     {
-        
+        $quiz = new Quiz();
+
+        $quiz->addQuestion(new Question("What is 2 + 2?", 4));
+
+        $quiz->nextQuestion();
+        self::assertFalse($quiz->nextQuestion());
+    }
+
+    /** @test */
+    public function it_cannot_be_graded_until_all_questions_have_been_answered(): void
+    {
+        $quiz = new Quiz();
+
+        $quiz->addQuestion(new Question("What is 2 + 2?", 4));
+
+        $this->expectException(\Exception::class);
+
+        $quiz->grade();
     }
 }
